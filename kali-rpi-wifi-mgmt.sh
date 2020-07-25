@@ -89,11 +89,11 @@ function ConnectToInternet
 
 	# Prompt for wlan interface name
 	read -p "WLAN interface name [$g_iface]: " iface
-	iface=${name:-$g_iface} #default interface
+	iface=${iface:-$g_iface} #default interface
 
 	# Prompt for wpa_supplicant config file
 	read -p "wpa_supplicant config location [$g_wpa_supplicant_config]: " wpa_supplicant_config
-	wpa_supplicant_config=${name:-$g_wpa_supplicant_config} #default config file
+	wpa_supplicant_config=${wpa_supplicant_config:-$g_wpa_supplicant_config} #default config file
 
 	file="/var/run/wpa_supplicant/$iface"
 
@@ -177,11 +177,11 @@ function ResetDefaultGateway
 		
 		# Prompt for default gateway IP address
 		read -p "Enter default gateway IP [$g_default_gateway]: " default_gateway
-		default_gateway=${name:-$g_default_gateway} #default gateway
+		default_gateway=${default_gateway:-$g_default_gateway} #default gateway
 
 		# Prompt for wlan interface name
 		read -p "WLAN interface name [$g_iface]: " iface
-		iface=${name:-$g_iface} #default interface
+		iface=${iface:-$g_iface} #default interface
 		
 		route add default gw $default_gateway $iface -v
 
