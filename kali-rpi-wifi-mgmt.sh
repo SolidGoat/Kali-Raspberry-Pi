@@ -58,6 +58,7 @@ txtrst='\e[0m'    # Text Reset - Useful for avoiding color bleed
 #=================
 g_iface="wlan1"                                                   #Default value for wlan interface
 g_default_gateway="192.168.1.1"                                   #Default value for default gateway
+g_network="192.168.1.0/24"                                        #Default value for network
 g_wpa_supplicant_config="/etc/wpa_supplicant/wpa_supplicant.conf" ##Default value for wpa_supplicant
 
 # Return to MainMenu
@@ -89,11 +90,11 @@ function ConnectToInternet
 
 	# Prompt for wlan interface name
 	read -p "WLAN interface name [$g_iface]: " iface
-	iface=${iface:-$g_iface} #default interface
+	iface=${iface:-$g_iface} #default value for wlan interface
 
 	# Prompt for wpa_supplicant config file
 	read -p "wpa_supplicant config location [$g_wpa_supplicant_config]: " wpa_supplicant_config
-	wpa_supplicant_config=${wpa_supplicant_config:-$g_wpa_supplicant_config} #default config file
+	wpa_supplicant_config=${wpa_supplicant_config:-$g_wpa_supplicant_config} #default value for config file
 
 	file="/var/run/wpa_supplicant/$iface"
 
@@ -165,7 +166,7 @@ function ResetDefaultGateway
 {
 	echo -e ${txtgrn}"Resetting Default Gateway..."${txtrst}
 	echo ""
-	
+
 	# Check if default route exists
 	# If it doesn't, recreate it
 	if [[ $(ip route show | grep default) ]]
@@ -174,19 +175,43 @@ function ResetDefaultGateway
 	else
 		echo -e ${txtgrn}"No route found."${txtrst}
 		echo -e ${txtgrn}"Adding Route..."${txtrst}
-		
-		# Prompt for default gateway IP address
+
+		# Prompt for default gateway IP for Internet connectivity
 		read -p "Enter default gateway IP [$g_default_gateway]: " default_gateway
-		default_gateway=${default_gateway:-$g_default_gateway} #default gateway
+		default_gateway=${default_gateway:-$g_default_gateway} #default value for gateway
+
+		# Prompt for network for Internet connectivity
+		read -p "Enter network [$g_network]: " network
+		network=${network:-$g_network} #default value for network
 
 		# Prompt for wlan interface name
 		read -p "WLAN interface name [$g_iface]: " iface
-		iface=${iface:-$g_iface} #default interface
-		
-		route add default gw $default_gateway $iface -v
+		iface=${iface:-$g_iface} #default value for wlan interface
+
+		# Add route for next hop
+		ip route add $network dev $iface
+
+		# Add route for default gateway
+		ip route add default via $default_gateway dev $iface
 
 		echo ""
-		echo -e $(ip route show)
+		echo -e "$(route)"
+	fi
+
+	# Return to MainMenu
+	pause
+}
+
+# Test Internet connectivity
+function TestInternet
+{
+	if ping -q -c 1 -W 1 www.google.com &> /dev/null
+	then
+		echo ""
+		echo -e ${bldgrn}"Internet is up!"${txtrst}
+	else
+		echo ""
+		echo -e ${bldred}"Internet is down!"${txtrst}
 	fi
 
 	# Return to MainMenu
@@ -202,7 +227,8 @@ function MainMenu
 	echo "~~~~~~~~~~~~~~~~~~~~~"
 	echo "1. Connect to Internet"
 	echo "2. Reset Default Gateway"
-	echo "3. Exit"
+	echo "3. Test Internet"
+	echo "4. Exit"
 	echo ""
 }
 
@@ -214,7 +240,8 @@ function Choices
 	case $choice in
 		1) ConnectToInternet ;;
 		2) ResetDefaultGateway ;;
-		3) exit 0;;
+		3) TestInternet ;;
+		4) exit 0;;
 		*) echo -e ${bldred}"Incorrect option."${txtrst} && sleep 2
 	esac
 }
