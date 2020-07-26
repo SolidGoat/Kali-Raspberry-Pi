@@ -9,7 +9,8 @@ A simple script to connect to the internet or reset the default gateway on a Ras
 ~~~~~~~~~~~~~~~~~~~~~
 1. Connect to Internet
 2. Reset Default Gateway
-3. Exit
+3. Test Internet
+4. Exit
 
 Enter choice [ 1 - 3]
 ```
@@ -24,3 +25,5 @@ Enter choice [ 1 - 3]
     3. Then creates the default route
 
     \* I added this feature because, for some reason, the default route entry would disappear. I'm not sure if it's because the wireless gets confused because it's hosting an AP while connected to another one or it's a bug in the OS.
+2. **Test Internet**
+    1. Tests internet connectivity against www.google.com
